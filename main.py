@@ -4,30 +4,43 @@ import json
 
 
 def json_deperson(buf):
+    '''
+    Функция обезличивания json
+    :param buf: json в виде строки
+    :return: Обезличенный json
+    '''
     json_object = json.loads(buf)
     for obj in json_object:
         if type(json_object[str(obj)]) == str:
             json_object[str(obj)] = deperson(json_object[str(obj)])
         elif type(json_object[str(obj)]) == list:
+
+            # Обезличиваем список
             for key, item in enumerate(json_object[str(obj)]):
                 json_object[str(obj)][key] = deperson(str(item))
     try:
         del json_object['serial_number']
     except KeyError:
         pass
-    json_str = json.dumps(json_object)
-    return json_str
+    result = json.dumps(json_object)
+    return result
 
 
-def deperson(item):
-    new_item = ''
-    for k, symbol in enumerate(item):
+def deperson(buf):
+    '''
+    Функция обезличивания строки
+    :param buf: строка
+    :return: обезличенная строка
+    '''
+    result = ''
+    for k, symbol in enumerate(buf):
         num = ord(symbol)
+
         if 0 <= num <= 64 or 91 <= num <= 96 or 123 <= num <= 127:
-            new_item += symbol
+            result += symbol
         else:
-            new_item += chr(num + 1)
-    return new_item
+            result += chr(num + 1)
+    return result
 
 
 def main(data):
@@ -35,6 +48,7 @@ def main(data):
     for i, row in enumerate(data):
         if i != 0:
             for j, item in enumerate(row):
+                # j - номер столба таблицы
                 if j == 2 or j == 8:
                     row[j] = deperson(item)
                 if j == 5:
@@ -44,7 +58,10 @@ def main(data):
 
 
 cur_dir = os.getcwd()
+
+# Берем первый файл в директории с расширением .csv
 file_name = [i for i in os.listdir(cur_dir) if '.csv' and 'query' in i][0]
+
 with open(file_name, 'r') as csv_read:
     data = csv.reader(csv_read)
     data = main(data)
