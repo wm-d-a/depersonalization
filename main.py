@@ -11,13 +11,16 @@ def json_deperson(buf):
     '''
     json_object = json.loads(buf)
     for obj in json_object:
-        if type(json_object[str(obj)]) == str:
-            json_object[str(obj)] = deperson(json_object[str(obj)])
-        elif type(json_object[str(obj)]) == list:
+        if obj != 'environment' or obj != 'workload_type' or obj != 'cluster_name' or obj != 'platform' \
+                or obj != 'cluster_cpu_volume' or obj != 'cluster_cpu_volume_total' or obj != 'real_used' \
+                or obj != 'cluster_name':
+            if type(json_object[str(obj)]) == str:
+                json_object[str(obj)] = str_deperson(json_object[str(obj)])
+            elif type(json_object[str(obj)]) == list:
 
-            # Обезличиваем список
-            for key, item in enumerate(json_object[str(obj)]):
-                json_object[str(obj)][key] = deperson(str(item))
+                # Обезличиваем список
+                for key, item in enumerate(json_object[str(obj)]):
+                    json_object[str(obj)][key] = str_deperson(str(item))
     try:
         del json_object['serial_number']
     except KeyError:
@@ -26,7 +29,7 @@ def json_deperson(buf):
     return result
 
 
-def deperson(buf):
+def str_deperson(buf):
     '''
     Функция обезличивания строки
     :param buf: строка
@@ -55,7 +58,7 @@ def main(data):
             for j, item in enumerate(row):
                 # j - номер столба таблицы
                 if j == 2 or j == 8:
-                    row[j] = deperson(item)
+                    row[j] = str_deperson(item)
                 if j == 5:
                     row[j] = json_deperson(item)
         data[i] = row
