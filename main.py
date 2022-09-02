@@ -35,9 +35,14 @@ def deperson(buf):
     result = ''
     for k, symbol in enumerate(buf):
         num = ord(symbol)
-
-        if 0 <= num <= 64 or 91 <= num <= 96 or 123 <= num <= 127:
+        if 0 <= num <= 47 or 58 <= num <= 64 or 91 <= num <= 96 or 123 <= num <= 127:
             result += symbol
+        elif num == 122:
+            result += chr(97)
+        elif num == 90:
+            result += chr(65)
+        elif num == 57:
+            result += chr(48)
         else:
             result += chr(num + 1)
     return result
