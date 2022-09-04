@@ -11,7 +11,7 @@ def json_deperson(buf):
     '''
     json_object = json.loads(buf)
     for obj in json_object:
-        if obj not in column_json_exceptions:
+        if obj not in json_exceptions:
             if type(json_object[str(obj)]) == str:
                 json_object[str(obj)] = str_deperson(json_object[str(obj)])
             elif type(json_object[str(obj)]) == list:
@@ -50,14 +50,13 @@ def str_deperson(buf):
 
 
 def main(data):
-    data = list(data)
     for i, row in enumerate(data):
         if i != 0:
             for j, item in enumerate(row):
                 # j - номер столба таблицы
-                if j == 2 or j == 8:
+                if j in column_str:
                     row[j] = str_deperson(item)
-                if j == 5:
+                if j in column_json:
                     row[j] = json_deperson(item)
         data[i] = row
     return data
@@ -68,11 +67,17 @@ cur_dir = os.getcwd()
 # Берем первый файл в директории с расширением .csv
 file_name = [i for i in os.listdir(cur_dir) if '.csv' and 'query' in i][0]
 
-column_json_exceptions = ['environment', 'workload_type', 'platform', 'cluster_cpu_volume', 'cluster_cpu_volume_total',
-                          'real_used']
+column_str = ['scope_type', 'worker_id']
+column_json = ['attributes']
+
+json_exceptions = ['environment', 'workload_type', 'platform', 'cluster_cpu_volume', 'cluster_cpu_volume_total',
+                   'real_used']
 
 with open(file_name, 'r') as csv_read:
     data = csv.reader(csv_read)
+    data = list(data)
+    column_str = [data[0].index(item) for item in column_str]
+    column_json = [data[0].index(item) for item in column_json]
     data = main(data)
 with open('new_query_result.csv', 'w', newline='') as csv_write:
     csv.writer(csv_write).writerows(data)
