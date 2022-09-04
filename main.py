@@ -11,9 +11,7 @@ def json_deperson(buf):
     '''
     json_object = json.loads(buf)
     for obj in json_object:
-        if obj != 'environment' or obj != 'workload_type' or obj != 'cluster_name' or obj != 'platform' \
-                or obj != 'cluster_cpu_volume' or obj != 'cluster_cpu_volume_total' or obj != 'real_used' \
-                or obj != 'cluster_name':
+        if obj not in column_json_exceptions:
             if type(json_object[str(obj)]) == str:
                 json_object[str(obj)] = str_deperson(json_object[str(obj)])
             elif type(json_object[str(obj)]) == list:
@@ -69,6 +67,9 @@ cur_dir = os.getcwd()
 
 # Берем первый файл в директории с расширением .csv
 file_name = [i for i in os.listdir(cur_dir) if '.csv' and 'query' in i][0]
+
+column_json_exceptions = ['environment', 'workload_type', 'platform', 'cluster_cpu_volume', 'cluster_cpu_volume_total',
+                          'real_used']
 
 with open(file_name, 'r') as csv_read:
     data = csv.reader(csv_read)
