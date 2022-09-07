@@ -1,7 +1,7 @@
 import csv
 import os
 import json
-
+from config import config
 
 def json_deperson(buf):
     '''
@@ -11,7 +11,7 @@ def json_deperson(buf):
     '''
     json_object = json.loads(buf)
     for obj in json_object:
-        if obj not in json_exceptions:
+        if obj not in config['json_exceptions']:
             if type(json_object[str(obj)]) == str:
                 json_object[str(obj)] = str_deperson(json_object[str(obj)])
             elif type(json_object[str(obj)]) == list:
@@ -65,19 +65,13 @@ def main(data):
 cur_dir = os.getcwd()
 
 # Берем первый файл в директории с расширением .csv
-file_name = [i for i in os.listdir(cur_dir) if '.csv' and 'query' in i][0]
-
-column_str = ['scope_type', 'worker_id']
-column_json = ['attributes']
-
-json_exceptions = ['environment', 'workload_type', 'platform', 'cluster_cpu_volume', 'cluster_cpu_volume_total',
-                   'real_used']
+file_name = [i for i in os.listdir(cur_dir) if '.csv' and 'query' in i and 'new' not in i][0]
 
 with open(file_name, 'r') as csv_read:
     data = csv.reader(csv_read)
     data = list(data)
-    column_str = [data[0].index(item) for item in column_str]
-    column_json = [data[0].index(item) for item in column_json]
+    column_str = [data[0].index(item) for item in config['column_str']]
+    column_json = [data[0].index(item) for item in config['column_json']]
     data = main(data)
-with open('new_query_result.csv', 'w', newline='') as csv_write:
+with open('new_query_result.csv', 'w', newline='', encoding='utf-8') as csv_write:
     csv.writer(csv_write).writerows(data)
